@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ponto Burger</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <link rel="shortcut icon" href="Imagens/iconburger.png" type="image/x-icon">
+    <img src="Imagens/iconburger.png" alt="Logo Ponto Burger" class="logo">
+    <h1>Bem vindo ao Ponto Burger</h1>
+    <p>Delivery da Cidade</p>
+  </header>
+
+  <section class="categorias">
+    <button>Inicio</button>
+    <button>Bebidas</button>
+    <button>Combos</button>
+  </section>
+
+  <input type="text" id="busca" placeholder="Pesquisar produto...">
+
+  <section class="cardapio" id="cardapio">
+    <!-- Exemplo de card -->
+    <div class="card">
+      <img src="Imagens/x-burger.avif" alt="X-Burguer">
+      <h3>X-Burguer</h3>
+      <p>Inicio</p>
+      <p class="preco">R$ 15,00</p>
+      <button onclick="adicionarPedido('X-Burguer')">Adicionar</button>
+    </div>
+    
+    <div class="card">
+      <img src="Imagens/x-tudo.jpg" alt="X-Burguer">
+      <h3>X-Tudo</h3>
+      <p>Inicio</p>
+      <p class="preco">R$ 18,00</p>
+      <button onclick="adicionarPedido('X-Burguer')">Adicionar</button>
+    </div>
+
+    <div class="card">
+      <img src="Imagens/x-bacon.jpg" alt="X-Burguer">
+      <h3>X-Bacon</h3>
+      <p>Inicio</p>
+      <p class="preco">R$ 12,00</p>
+      <button onclick="adicionarPedido('X-Burguer')">Adicionar</button>
+    </div>
+
+    <div class="card">
+      <img src="Imagens/x-salada.png" alt="X-Burguer">
+      <h3>X-Salada</h3>
+      <p>Inicio</p>
+      <p class="preco">R$ 16,00</p>
+      <button onclick="adicionarPedido('X-Burguer')">Adicionar</button>
+    </div>
+
+
+    <!-- Repita os cards aqui -->
+  </section>
+
+  <footer>
+    <a href="#" id="linkZap" target="_blank">Finalizar pedido via WhatsApp</a>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
+
