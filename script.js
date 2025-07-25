@@ -4,6 +4,51 @@ function atualizaCarrinho(){
 
 let cliques = 0;
 
+// === ACRESCENTAR ===
+const BATCH_SIZE = 8;
+
+function getOrders() {
+  return JSON.parse(localStorage.getItem("orders")) || [];
+}
+function saveOrders(orders) {
+  localStorage.setItem("orders", JSON.stringify(orders));
+}
+function getLastOrderNumber() {
+  return parseInt(localStorage.getItem("lastOrderNumber") || "0", 10);
+}
+function setLastOrderNumber(n) {
+  localStorage.setItem("lastOrderNumber", String(n));
+}
+function getBatchInfo(orderNumber) {
+  const batch = Math.ceil(orderNumber / BATCH_SIZE);
+  const rangeStart = (batch - 1) * BATCH_SIZE + 1;
+  const rangeEnd = rangeStart + BATCH_SIZE - 1;
+  return { batch, rangeStart, rangeEnd };
+}
+function createOrder(items) {
+  const next = getLastOrderNumber() + 1;
+  setLastOrderNumber(next);
+
+  const { batch, rangeStart, rangeEnd } = getBatchInfo(next);
+
+  const order = {
+    id: next,
+    items: [...items],
+    batch,
+    rangeStart,
+    rangeEnd,
+    createdAt: Date.now()
+  };
+
+  const orders = getOrders();
+  orders.push(order);
+  saveOrders(orders);
+
+  console.log(`Pedido #${order.id} criado. Lote ${order.batch} (${rangeStart}-${rangeEnd}).`);
+  return order;
+}
+
+
 console.log(`este é o tamanho da lista: ${atualizaCarrinho().length}, escopo global`);
 
 function adicionarPedido(item) {
@@ -37,21 +82,31 @@ function reconher_evento(primeiro_clique){ //Primeiro clique conserta o erro de 
   }
 
   else{
-    link_desabilitado.setAttribute("target", "_blank");
-    
-    const texto = encodeURIComponent(`Olá! Gostaria de pedir:\n- ${carrinho.join('\n- ')}`);
-    const link = `https://wa.me/5599999999999?text=${texto}`;
+  link_desabilitado.setAttribute("target", "_blank");
 
-    cliques++;
+  // === NOVO: cria pedido numerado + lote ===
+  const pedido = createOrder(carrinho);
+  alert(`Seu pedido é o #${pedido.id} (lote ${pedido.batch}: ${pedido.rangeStart}-${pedido.rangeEnd}).`);
 
-    if (cliques > 0){ //Essa condição é necessária para evitar acumulação de addEventListener.
-      link_desabilitado.removeEventListener("click", reconher_evento);
-    }
+  // (opcional) limpar carrinho após finalizar
+  localStorage.removeItem("carrinho");
 
-    document.getElementById("linkZap").href = link;
+  const texto = encodeURIComponent(
+    `Olá! Gostaria de pedir:\nPedido #${pedido.id}\n- ${pedido.items.join('\n- ')}`
+  );
+  const link = `https://wa.me/5599999999999?text=${texto}`;
 
-    console.log(`este é o tamanho da lista: ${carrinho.length}, espo global`);
+  cliques++;
+
+  if (cliques > 0){
+    link_desabilitado.removeEventListener("click", reconher_evento);
   }
+
+  document.getElementById("linkZap").href = link;
+
+  console.log(`este é o tamanho da lista: ${pedido.items.length}, escopo global`);
+}
+
 }
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -64,3 +119,5 @@ function animacaoDecorativa(){
 }
 
 //animacaoDecorativa();
+
+
