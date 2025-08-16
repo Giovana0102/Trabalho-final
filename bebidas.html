@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ponto Burger</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js"></script>
+</head>
+
+<body>
+  <header>
+    <link rel="shortcut icon" href="Imagens/iconburger.png" type="image/x-icon">
+    <img src="Imagens/iconburger.png" alt="Logo Ponto Burger" class="logo">
+
+    <h1>Bem vindo ao Ponto Burger</h1>
+    <p>Delivery da Cidade</p>
+
+
+  </header>
+
+  <section class="categorias">
+  <a href="index.html"><button>Inicio</button></a>
+  <a href="bebidas.html"><button>Bebidas</button></a>
+  
+  </section>
+
+
+  <input type="text" id="busca" placeholder="Pesquisar produto...">
+
+  <section class="cardapio" id="cardapio">
+   
+<div class="card">
+  <img src="Imagens/refrigerante-2l.jpg" alt="Refrigerante 2L">
+  <h3>Refrigerante 2L</h3>
+  <p>Inicio</p>
+  <p class="preco">R$ 12,00</p>
+  <button onclick="adicionarPedido('Refrigerante 2L')">Adicionar</button>
+</div>
+
+<div class="card">
+  <img src="Imagens/coca_cola2l.webp" alt="Coca-cola 2L">
+  <h3>Coca-cola 2L</h3>
+  <p>Inicio</p>
+  <p class="preco">R$ 15,00</p>
+  <button onclick="adicionarPedido('Coca-cola 2L')">Adicionar</button>
+</div>
+
+<div class="card">
+  <img src="Imagens/pepsi_cola_pet_2l.jpg" alt="Pepsi-cola 2L">
+  <h3>Pepsi-cola 2L</h3>
+  <p>Inicio</p>
+  <p class="preco">R$ 15,00</p>
+  <button onclick="adicionarPedido('Pepsi-cola 2L')">Adicionar</button>
+</div>
+
+<div class="card">
+  <img src="Imagens/coca-cola-guarana-1-litro.jpg" alt="Refrigerante 1L">
+  <h3>Refrigerante 1L</h3>
+  <p>Inicio</p>
+  <p class="preco">R$ 10,00</p>
+  <button onclick="adicionarPedido('Refrigerante 1L')">Adicionar</button>
+</div>
+
+<div class="card">
+  <img src="Imagens/suco-laranja-natural.jpg" alt="Suco de Laranja">
+  <h3>Suco-Laranja</h3>
+  <p>Inicio</p>
+  <p class="preco">R$ 10,00</p>
+  <button onclick="adicionarPedido('Suco-Laranja')">Adicionar</button>
+</div>
+
+<div class="card">
+  <img src="Imagens/suco-goiaba-natural.png" alt="Suco de Goiaba">
+  <h3>Suco-Goiaba</h3>
+  <p>Inicio</p>
+  <p class="preco">R$ 10,00</p>
+  <button onclick="adicionarPedido('Suco-Goiaba')">Adicionar</button>
+</div>
+
+   <!-- Repita os cards aqui -->
+  </section>
+
+  <!-- Div para imagens ilustrativas abaixo, o id galeria está servindo como identificador para função que requisitará fotos pela API do Pexels. -->
+  <div class="galeria2" id="galeria2">
+    <!-- Como Ponto Burger não existe, eu tenho uma liberdade maior com direitos autorias e licenças. -->
+  </div>
+  
+  <footer>
+    <a href="#" id="linkZap">Finalizar pedido via WhatsApp</a>
+  </footer>
+
+</body>
+</html>
+
