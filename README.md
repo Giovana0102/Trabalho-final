@@ -1,4 +1,7 @@
 # Trabalho final
 site de cardapio
 
-- Precisa instalar o Node.js (build tool)
+## Instalação de itens necessários para uso
+- Instalar Vercel CLI
+    npm i -g vercel
+

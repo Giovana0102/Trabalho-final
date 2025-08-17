@@ -1,3 +1,5 @@
+// ========== SISTEMA DE CARRINHO E PEDIDOS ==========
+
 function atualizaCarrinho(){
   return JSON.parse(localStorage.getItem("carrinho")) || []; 
 }
@@ -53,8 +55,6 @@ function createOrder(items) {
   return order;
 }
 
-console.log(`Este é o tamanho da lista: ${atualizaCarrinho().length}, escopo global`);
-
 function adicionarPedido(item) {
   const carrinho = atualizaCarrinho();
   carrinho.push(item);
@@ -81,11 +81,9 @@ function reconher_evento(primeiro_clique){
   } else {
     link_desabilitado.setAttribute("target", "_blank");
 
-    // === NOVO: cria pedido numerado + lote ===
     const pedido = createOrder(carrinho);
     alert(`Seu pedido é o #${pedido.id} (lote ${pedido.batch}: ${pedido.rangeStart}-${pedido.rangeEnd}).`);
 
-    // (opcional) limpar carrinho após finalizar
     localStorage.removeItem("carrinho");
 
     const texto = encodeURIComponent(
@@ -104,179 +102,144 @@ function reconher_evento(primeiro_clique){
   }
 }
 
-document.addEventListener("DOMContentLoaded", function () {
-  const link_desabilitado = document.getElementById("linkZap");
-  link_desabilitado.addEventListener("click", reconher_evento);
-});
+// ========== API DE IMAGENS (SEGURA) ==========
 
-// API PEXELS - USANDO FETCH (SEM CORS)
+// Função para buscar imagens via API route
+async function fetchImages(query, perPage = 8) {
+  try {
+    console.log(`Buscando imagens para: ${query}`);
+    
+    // Usar sua própria API route ao invés da Pexels diretamente
+    const response = await fetch(`/api/images?query=${encodeURIComponent(query)}&per_page=${perPage}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
 
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || `HTTP Error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log("Dados recebidos:", data);
+    
+    return data;
+
+  } catch (error) {
+    console.error("Erro ao buscar imagens:", error);
+    throw error;
+  }
+}
+
+// Função para exibir imagens na galeria
+function displayImages(photos, galleryId) {
+  const galeria = document.getElementById(galleryId);
+  
+  if (!galeria) {
+    console.error(`Elemento #${galleryId} não encontrado no DOM!`);
+    return;
+  }
+
+  // Limpar galeria
+  galeria.innerHTML = '';
+
+  if (!photos || photos.length === 0) {
+    galeria.innerHTML = '<p>Nenhuma imagem encontrada</p>';
+    return;
+  }
+
+  // Adicionar cada imagem
+  photos.forEach((photo, index) => {
+    console.log(`Adicionando imagem ${index + 1}:`, photo.src.medium);
+    
+    const img = document.createElement("img");
+    img.src = photo.src.medium;
+    img.alt = `Foto por ${photo.photographer}`;
+    img.title = `Foto por ${photo.photographer}`;
+    img.loading = "lazy"; // Lazy loading
+    
+    // Eventos de debug
+    img.onerror = function() {
+      console.error(`Erro ao carregar imagem: ${this.src}`);
+      this.style.display = 'none';
+    };
+    
+    img.onload = function() {
+      console.log(`Imagem carregada: ${this.src}`);
+    };
+    
+    galeria.appendChild(img);
+  });
+
+  console.log(`${photos.length} imagens adicionadas à galeria ${galleryId}`);
+}
+
+// Função para mostrar erro na galeria
+function displayError(galleryId, error) {
+  const galeria = document.getElementById(galleryId);
+  if (galeria) {
+    galeria.innerHTML = `
+      <div style="color: #ff4081; padding: 20px; text-align: center;">
+        <p>❌ Erro ao carregar imagens</p>
+        <p><small>${error.message}</small></p>
+        <button onclick="location.reload()" style="margin-top: 10px; padding: 5px 10px;">
+          🔄 Tentar Novamente
+        </button>
+      </div>
+    `;
+  }
+}
+
+// Suas funções originais adaptadas
 async function imagensFastFood() {
-  console.log("Iniciando carregamento de imagens...");
+  console.log("Carregando imagens de fast food...");
   
   try {
-    // Fazer requisição para a API do Pexels
-    const response = await fetch('https://api.pexels.com/v1/search?query=hamburger&per_page=8', {
-      method: 'GET',
-      headers: {
-        'Authorization': API_KEY,
-        'Content-Type': 'application/json'
-      }
-    });
-
-    console.log("Status da resposta:", response.status);
-    
-    if (!response.ok) {
-      throw new Error(`Erro HTTP: ${response.status} - ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    console.log("Dados recebidos:", data);
-
-    // Verificar se o elemento galeria existe
-    const galeria = document.getElementById("galeria");
-    if (!galeria) {
-      console.error("Elemento #galeria não encontrado no DOM!");
-      return;
-    }
-
-    // Limpar galeria antes de adicionar novas imagens
-    galeria.innerHTML = '';
-
-    // Verificar se existem fotos nos dados
-    if (!data.photos || data.photos.length === 0) {
-      console.log("Nenhuma foto encontrada nos resultados");
-      galeria.innerHTML = '<p>Nenhuma imagem encontrada</p>';
-      return;
-    }
-
-    // Adicionar cada imagem à galeria
-    data.photos.forEach((photo, index) => {
-      console.log(`Adicionando imagem ${index + 1}:`, photo.src.medium);
-      
-      const img = document.createElement("img");
-      img.src = photo.src.medium;
-      img.alt = `Foto de comida por ${photo.photographer}`;
-      img.title = `Foto por ${photo.photographer}`;
-      
-      // Adicionar evento de erro para debug
-      img.onerror = function() {
-        console.error(`Erro ao carregar imagem: ${this.src}`);
-      };
-      
-      // Adicionar evento de sucesso para debug
-      img.onload = function() {
-        console.log(`Imagem carregada com sucesso: ${this.src}`);
-      };
-      
-      galeria.appendChild(img);
-    });
-
-    console.log(`${data.photos.length} imagens adicionadas à galeria`);
-
+    const data = await fetchImages('hamburger', 8);
+    displayImages(data.photos, 'galeria');
   } catch (error) {
-    console.error("Erro detalhado ao carregar imagens:", error);
-    
-    // Mostrar erro na galeria
-    const galeria = document.getElementById("galeria");
-    if (galeria) {
-      galeria.innerHTML = `
-        <div style="color: #ff4081; padding: 20px;">
-          <p>❌ Erro ao carregar imagens da galeria</p>
-          <p><small>Detalhes: ${error.message}</small></p>
-        </div>
-      `;
-    }
+    console.error("Erro ao carregar fast food:", error);
+    displayError('galeria', error);
   }
 }
 
-async function imagensBebidasComuns(){
-  
-  console.log("Iniciando carregamento de imagens...");
+async function imagensBebidasComuns() {
+  console.log("Carregando imagens de bebidas...");
   
   try {
-    // Fazer requisição para a API do Pexels
-    const response = await fetch('https://api.pexels.com/v1/search?query=soda&per_page=8', {
-      method: 'GET',
-      headers: {
-        'Authorization': API_KEY,
-        'Content-Type': 'application/json'
-      }
-    });
-
-    console.log("Status da resposta:", response.status);
-    
-    if (!response.ok) {
-      throw new Error(`Erro HTTP: ${response.status} - ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    console.log("Dados recebidos:", data);
-
-    // Verificar se o elemento galeria existe
-    const galeria = document.getElementById("galeria2");
-    if (!galeria) {
-      console.error("Elemento #galeria não encontrado no DOM!");
-      return;
-    }
-
-    // Limpar galeria antes de adicionar novas imagens
-    galeria.innerHTML = '';
-
-    // Verificar se existem fotos nos dados
-    if (!data.photos || data.photos.length === 0) {
-      console.log("Nenhuma foto encontrada nos resultados");
-      galeria.innerHTML = '<p>Nenhuma imagem encontrada</p>';
-      return;
-    }
-
-    // Adicionar cada imagem à galeria
-    data.photos.forEach((photo, index) => {
-      console.log(`Adicionando imagem ${index + 1}:`, photo.src.medium);
-      
-      const img = document.createElement("img");
-      img.src = photo.src.medium;
-      img.alt = `Foto de comida por ${photo.photographer}`;
-      img.title = `Foto por ${photo.photographer}`;
-      
-      // Adicionar evento de erro para debug
-      img.onerror = function() {
-        console.error(`Erro ao carregar imagem: ${this.src}`);
-      };
-      
-      // Adicionar evento de sucesso para debug
-      img.onload = function() {
-        console.log(`Imagem carregada com sucesso: ${this.src}`);
-      };
-      
-      galeria.appendChild(img);
-    });
-
-    console.log(`${data.photos.length} imagens adicionadas à galeria`);
-
+    const data = await fetchImages('soda', 8);
+    displayImages(data.photos, 'galeria2');
   } catch (error) {
-    console.error("Erro detalhado ao carregar imagens:", error);
-    
-    // Mostrar erro na galeria
-    const galeria = document.getElementById("galeria2");
-    if (galeria) {
-      galeria.innerHTML = `
-        <div style="color: #ff4081; padding: 20px;">
-          <p>❌ Erro ao carregar imagens da galeria</p>
-          <p><small>Detalhes: ${error.message}</small></p>
-        </div>
-      `;
-    }
+    console.error("Erro ao carregar bebidas:", error);
+    displayError('galeria2', error);
   }
 }
 
-// INICIALIZAÇÃO
+// Função genérica para buscar qualquer tipo de imagem
+async function buscarImagens(query, galleryId = 'galeria') {
+  try {
+    const data = await fetchImages(query, 8);
+    displayImages(data.photos, galleryId);
+  } catch (error) {
+    console.error(`Erro ao buscar ${query}:`, error);
+    displayError(galleryId, error);
+  }
+}
 
-// Aguardar DOM carregar completamente
+// ========== INICIALIZAÇÃO ==========
+
 document.addEventListener('DOMContentLoaded', function() {
   console.log("DOM carregado, iniciando aplicação...");
   
-  // Aguardar um pouco antes de carregar imagens
+  // Configurar evento do WhatsApp
+  const link_desabilitado = document.getElementById("linkZap");
+  if (link_desabilitado) {
+    link_desabilitado.addEventListener("click", reconher_evento);
+  }
+  
+  // Carregar imagens após um delay
   setTimeout(() => {
     imagensFastFood();
     imagensBebidasComuns();
@@ -299,4 +262,66 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     });
   }
+
+  // Configurar busca de imagens dinâmica (se existir)
+  const imageBusca = document.getElementById('image-search');
+  if (imageBusca) {
+    imageBusca.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        const query = this.value.trim();
+        if (query) {
+          buscarImagens(query, 'galeria-dinamica');
+        }
+      }
+    });
+  }
 });
+
+console.log(`Carrinho inicial: ${atualizaCarrinho().length} itens`);
+
+/*------------------------------------------------------------------------- API PEXELS ---------------------------------------------------------------*/ 
+
+export default async function handler(req, res) {
+  // Permitir apenas GET requests
+  if (req.method !== 'GET') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  const { query, per_page = 8 } = req.query;
+  
+  // Validar parâmetros
+  if (!query) {
+    return res.status(400).json({ error: 'Query parameter is required' });
+  }
+
+  try {
+    const response = await fetch(`https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=${per_page}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': process.env.PEXELS_API_KEY,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`Pexels API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    
+    // Adicionar headers CORS
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    
+    return res.status(200).json(data);
+    
+  } catch (error) {
+    console.error('Error fetching images:', error);
+    return res.status(500).json({ 
+      error: 'Failed to fetch images',
+      details: error.message 
+    });
+  }
+}
+/*-------------------------------------------------------------------------------------------------------------*/
